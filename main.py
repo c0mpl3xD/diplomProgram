@@ -1,11 +1,15 @@
 from tkinter import ttk
 import cv2
-import mediapipe as mp
 from tkinter import *
-import handTracker as hT
+import requests
+#import handTracker as hT
+#from pygrabber.dshow_graph import FilterGraph
+import flet as ft
+from API.Models.user import User
+from API.Services.userService import UserService
+from apikey import API_TOKEN
 
 def openCamera():
-
     if selected_camera_index is not None:
         print("Камера вмикається !")
         pass
@@ -35,18 +39,18 @@ def openCamera():
     cv2.destroyAllWindows()
 
 def get_connected_cameras():
-    # Получаем список всех доступных камер
-    connected_cameras = []
-    for i in range(10):  # Попробуем первые 10 камер (можно изменить диапазон по необходимости)
-        cap = cv2.VideoCapture(i)
-        if cap.isOpened():
-            connected_cameras.append(f"Camera {i}")
-            cap.release()
-    return connected_cameras
+    devices = FilterGraph().get_input_devices()
+
+    available_cameras = {}
+
+    for device_index, device_name in enumerate(devices):
+        available_cameras[device_index] = device_name
+
+    return available_cameras
 
 def on_combobox_change(event, combobox, label_result):
     global selected_camera_index
-    selected_camera_index = combobox.get()[1]  # Получаем индекс из кортежа (название, индекс)
+    selected_camera_index = combobox.get()[1]
     selected_value = combobox.get()
     label_result.config(text=f'Обрана камера: {selected_value}')
 
@@ -80,14 +84,70 @@ def createWindow():
 
     return win
 
-def main():
-    win = createWindow()
-    win.mainloop()
+def registration(e):
+    user = User()
+    user.id = 0
+    user.email = "em"
+    user.login = "log"
+    user.password = "pas"
+    service = UserService()
+    res = service.register(user)
+
+user_email = ft.TextField(value="Введіть почту", width=200, height=40, text_align=ft.TextAlign.LEFT)
+user_password = ft.TextField(value="Пароль", width=200, height=40, text_align=ft.TextAlign.LEFT, password=True)
+
+def login(e):
+    user = User()
+    user.email = user_email.value
+    user.password = user_password.value
+    service = UserService()
+    res, status = service.login(user)
+    print("Result: " + res + ". Status: " +  str(status))
 
 
-
-
-
-
-if __name__ == "__main__":
-    main()
+def main(page : ft.Page):
+    page.title = "Login"
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.width = 400
+    page.height = 400
+    page.window_resizable = False
+    page.add(
+        ft.Row(
+            [
+                ft.Text('E-mail')
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        ),
+        ft.Row(
+            [
+                user_email
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        ),
+        ft.Row(
+            [
+                ft.Text('Пароль')
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        ),
+        ft.Row(
+            [
+                user_password
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        ),
+        ft.Row(
+            [
+                
+                ft.FilledButton(text="Авторизуватися", on_click=login, width=200, disabled=False)
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        ),
+        ft.Row(
+            [
+                ft.FilledButton(text="Зареєструватися", on_click=page.window_close)
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        )
+    )
+ft.app(target=main)
