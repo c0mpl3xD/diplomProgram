@@ -7,7 +7,6 @@ import requests
 import flet as ft
 from API.Models.user import User
 from API.Services.userService import UserService
-from apikey import API_TOKEN
 
 def openCamera():
     if selected_camera_index is not None:

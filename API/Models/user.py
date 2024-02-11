@@ -5,3 +5,8 @@ class User:
         self.login = login
         self.password = password
         self.phone = phone
+
+
+    @classmethod
+    def from_json(cls, json):
+        return cls(json['Id'], json['Email'], json['Login'], json['Password'], json['Phone'])

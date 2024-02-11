@@ -4,12 +4,10 @@ from flet import AppBar, RouteChangeEvent, ViewPopEvent, CrossAxisAlignment, Mai
 from flet_core.control_event import ControlEvent
 from API.Models.user import User
 from API.Services.userService import UserService
-from apikey import API_TOKEN
 
 
 def start_window(page : ft.Page):
-    page.window_resizable = False
-
+    page.window_resizable = True
     #login
     user_email = ft.TextField(label="Введіть почту", width=200, height=40, text_align=ft.TextAlign.LEFT)
     user_login = ft.TextField(label="Логін", width=200, height=40, text_align=ft.TextAlign.LEFT, visible=False)
@@ -36,8 +34,8 @@ def start_window(page : ft.Page):
         user.email = user_email.value
         user.password = user_password.value
         service = UserService()
-        res, status = service.login(user)
-        print("Result: " + res + ". Status: " +  str(status))
+        res = service.login(user)
+        
         #Open main window route='/main'
 
     def registration(e):
